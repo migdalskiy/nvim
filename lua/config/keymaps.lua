@@ -29,6 +29,15 @@ vim.api.nvim_set_keymap("i", "<C-y>", "<C-o><C-r>", { noremap = true, silent = t
 vim.api.nvim_set_keymap("i", "<C-Del>", "<C-o>dw", { noremap = true })
 vim.keymap.set("i", "<C-BS>", "<C-W>", { noremap = true, desc = "Delete word before cursor" })
 
+local open_at_line = require("custom.open_at_line")
+-- Map the function to a key combination, e.g., <leader>ol
+vim.api.nvim_set_keymap(
+    "n",
+    "<leader>pl",
+    ':lua require("custom.open_at_line").open_at_line()<CR>',
+    { noremap = true, silent = true }
+)
+
 -- Yanky recommended mappings:
 --vim.keymap.set({ "n", "x" }, "p", "<Plug>(YankyPutAfter)")
 --vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
