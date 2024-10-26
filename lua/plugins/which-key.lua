@@ -1,36 +1,44 @@
+-- Helper function to execute p4 commands
+local function p4_cmd(cmd)
+    return function()
+        local file = vim.fn.expand("%:p")
+        vim.fn.system(string.format('p4 %s "%s"', cmd, file))
+        print(string.format("p4 %s %s", cmd, file))
+    end
+end
+
+-- Setup which-key mapping
+--wk.setup({})
+
 return {
-    {
-        "folke/which-key.nvim",
-        opts = function(_, opts)
-            if opts.defaults then
-                opts.defaults["<leader>p"] = { name = "+perforce" }
-            end
-            local wk = require("which-key")
-            wk.register({
-                p = {
-                    name = "+perforce",
-                    a = {
-                        function()
-                            local node = require("neo-tree.sources.manager").get_node()
-                            if node then
-                                local path = node.path
-                                if node.type == "directory" then
-                                    path = path .. "/..."
-                                end
-                                vim.fn.system('p4 add "' .. path .. '"')
-                                print("Added to Perforce: " .. path)
-                                require("neo-tree.sources.manager").refresh()
-                            else
-                                local file = vim.fn.expand("%:p")
-                                vim.cmd("!p4 add " .. file)
-                            end
-                        end,
-                        "Add to Perforce",
-                    },
-                    -- Add more Perforce-related mappings here
-                },
-            }, { prefix = "<leader>" })
-            return opts
-        end,
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+    },
+    keys = {
+        {
+            "<leader>?",
+            function()
+                require("which-key").show({ global = false })
+            end,
+            desc = "Buffer Local Keymaps (which-key)",
+        },
+        { "<leader>p", group = "Perforce" }, -- group
+        {
+            "<leader>pb",
+            function()
+                require("which-key").show({ global = false })
+                local file = vim.fn.expand("%:p")
+                vim.fn.system(string.format('p4 add "%s"', file))
+                print(string.format("p4 add %s", file))
+            end,
+            desc = "Perforce Add v1",
+        },
+        { "<leader>pa", p4_cmd("add"), desc = "P4 Add File" },
+        { "<leader>pb", p4_cmd("edit"), desc = "P4 Edit File" },
+        { "<leader>pr", p4_cmd("revert"), desc = "P4 Revert File" },
     },
 }
