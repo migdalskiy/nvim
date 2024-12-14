@@ -32,6 +32,11 @@ function ChangeCwdToBufferDir()
     end
 end
 
+function TurnAutoFormatOff()
+    vim.b.autoformat = false
+    print("Autoformat disabled for this buffer")
+end
+
 -- Setup which-key mapping
 --wk.setup({})
 
@@ -67,5 +72,6 @@ return {
         { "<leader>pr", p4_cmd("revert"), desc = "P4 Revert File" },
         { "<leader>ct", TogglePyrightDiagnostics, desc = "Toggle Pyright Diagnistics" },
         { "<leader>pf", ChangeCwdToBufferDir, desc = "Change cwd to Buffer Dir" },
+        { "<leader>cn", TurnAutoFormatOff, desc = "No Format-on-write" },
     },
 }

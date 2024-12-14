@@ -5,6 +5,8 @@ vim.opt.clipboard = "unnamed,unnamedplus"
 -- vim.g.lazyvim.config.options.disable_ligatures = "always"
 vim.g.neovide_scroll_animation_length = 0
 vim.g.scrolling_animation_enabled = false
+vim.o.clipboard = "unnamedplus"
+vim.g.autoformat = false
 
 vim.api.nvim_create_autocmd("BufRead", {
     group = vim.api.nvim_create_augroup("NoModWhenReadOnly", { clear = true }),

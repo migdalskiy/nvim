@@ -13,6 +13,18 @@ dap.adapters.node2 = {
     args = { vim.fn.stdpath("data") .. "/mason/packages/node-debug2-adapter/out/src/n" },
 }
 
+dap.configurations.python = {
+  {
+    type = "python",
+    request = "launch",
+    name = "python3.12",
+    program = "${file}",
+    pythonPath = '/usr/bin/python3.12',
+    args = {
+        "20241211-224926",
+    },
+}
+
 dap.configurations.javascript = {
     {
         name = "Attach to process",
