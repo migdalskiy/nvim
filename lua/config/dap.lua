@@ -64,4 +64,19 @@ dap.configurations.typescript = {
         outFiles = { "${workspaceFolder}/dist/**/*.js" },
         trace = true, -- Enable verbose tracing
     },
+    {
+        type = "python",
+        request = "launch",
+        name = "Run with Arguments",
+        program = function()
+            return vim.fn.expand("%:p")
+        end,
+        pythonPath = "/usr/bin/python3.12",
+        justMyCode = false, -- Debug all code, including libraries
+        args = function()
+            -- Prompt for input, defaulting to the last used arguments
+            last_args = vim.fn.input("Enter arguments: ", last_args or "", "file")
+            return vim.split(last_args, " ") -- Split into argument list
+        end,
+    },
 }
