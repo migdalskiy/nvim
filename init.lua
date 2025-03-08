@@ -18,6 +18,20 @@ vim.api.nvim_create_autocmd("BufRead", {
     end,
 })
 
+-- allow both dos and unix style line edings, autodetect and use file's actual line endings
+vim.opt.fileformat = nil
+vim.opt.fileformats = { "unix","dos" }
+vim.opt.textwidth = 200
+
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*",
+  callback = function()
+    if vim.bo.modifiable then
+      vim.bo.fileformat = "unix"
+    end
+  end,
+})
+
 -- vim.api.nvim_exec(
 --     [[
 -- function! AnnotateFile()

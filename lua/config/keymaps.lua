@@ -14,9 +14,11 @@ end)
 vim.keymap.set("n", "<S-F11>", function()
     require("dap").step_out()
 end)
-vim.keymap.set("n", "<Leader>b", function()
+vim.keymap.set("n", "<F9>", function()
     require("dap").toggle_breakpoint()
 end)
+
+vim.opt.textwidth = 0
 
 vim.keymap.set("n", "<leader>it", ":lua vim.lsp.buf.format_inlay_hints()<CR>", { desc = "Convert inlay hints to text" })
 
@@ -27,7 +29,9 @@ vim.api.nvim_set_keymap("i", "<C-z>", "<C-o>u", { noremap = true, silent = true 
 vim.api.nvim_set_keymap("i", "<C-y>", "<C-o><C-r>", { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap("i", "<C-Del>", "<C-o>dw", { noremap = true })
+
 vim.keymap.set("i", "<C-BS>", "<C-W>", { noremap = true, desc = "Delete word before cursor" })
+vim.keymap.set("n", "<leader>dv", ":DapVirtualTextToggle<CR>", { desc = "Toggle DAP Virtual Text" })
 
 local open_at_line = require("custom.open_at_line")
 -- Map the function to a key combination, e.g., <leader>ol
