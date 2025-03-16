@@ -21,6 +21,8 @@ end)
 vim.opt.textwidth = 0
 
 vim.keymap.set("n", "<leader>it", ":lua vim.lsp.buf.format_inlay_hints()<CR>", { desc = "Convert inlay hints to text" })
+-- for key, value in pairs(Snacks.dashboard) do if type(value) == "function" then print(key) end end
+vim.keymap.set("n", "<leader>H", ":lua Snacks.dashboard.open()<CR>", {desc = "Open Snacks Dashboard" } )
 
 -- Map Ctrl+Z to undo in insert mode
 vim.api.nvim_set_keymap("i", "<C-z>", "<C-o>u", { noremap = true, silent = true })
