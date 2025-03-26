@@ -1,5 +1,6 @@
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
+require("config.dap")
 vim.opt.guifont = "FiraCode Nerd Font Mono:h16"
 vim.opt.clipboard = "unnamed,unnamedplus"
 -- vim.g.lazyvim.config.options.disable_ligatures = "always"
