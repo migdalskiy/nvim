@@ -37,6 +37,19 @@ function TurnAutoFormatOff()
     print("Autoformat disabled for this buffer")
 end
 
+
+-- Function to print the full path of the current file
+local function PrintFullPath()
+  print(vim.fn.expand('%:p'))
+end
+
+-- Function to yank the full path to the system clipboard
+local function YankFullPath()
+  local path = vim.fn.expand('%:p')
+  vim.fn.setreg('+', path)  -- Copy to system clipboard
+  print('Path yanked: ' .. path)
+end
+
 -- Setup which-key mapping
 --wk.setup({})
 
@@ -73,5 +86,7 @@ return {
         { "<leader>ct", TogglePyrightDiagnostics, desc = "Toggle Pyright Diagnistics" },
         { "<leader>pf", ChangeCwdToBufferDir, desc = "Change cwd to Buffer Dir" },
         { "<leader>cn", TurnAutoFormatOff, desc = "No Format-on-write" },
+        { "<leader>pp", PrintFullPath, desc = "print the full path of the current file" },
+        { "<leader>py", YankFullPath, desc = "yank the full path to the system clipboard" },
     },
 }
