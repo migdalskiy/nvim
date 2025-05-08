@@ -20,7 +20,6 @@ vim.api.nvim_create_autocmd("BufRead", {
 })
 
 -- allow both dos and unix style line edings, autodetect and use file's actual line endings
-vim.opt.fileformat = nil
 vim.opt.fileformats = { "unix","dos" }
 vim.opt.textwidth = 200
 

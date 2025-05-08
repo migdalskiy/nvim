@@ -18,6 +18,15 @@ vim.keymap.set("n", "<F9>", function()
     require("dap").toggle_breakpoint()
 end)
 
+local dapui = require("dapui")
+vim.keymap.set('n', '<leader>is', function() dapui.focus("stacks") end, { desc = "DAP UI Focus Stacks" })
+vim.keymap.set('n', '<leader>iv', function() dapui.focus("scopes") end, { desc = "DAP UI Focus Variables (Scopes)" })
+vim.keymap.set('n', '<leader>iw', function() dapui.focus("watches") end, { desc = "DAP UI Focus Watches" })
+vim.keymap.set('n', '<leader>ir', function() dapui.focus("repl") end, { desc = "DAP UI Focus REPL" })
+vim.keymap.set('n', '<leader>ic', function() dapui.focus("console") end, { desc = "DAP UI Focus Console" })
+vim.keymap.set('n', '<leader>ib', function() dapui.focus("breakpoints") end, { desc = "DAP UI Focus Breakpoints" } )
+vim.keymap.set('n', '<leader>iq', dapui.eval, { desc = "DAP UI Quick Eval" } )
+
 vim.opt.textwidth = 0
 
 vim.keymap.set("n", "<leader>it", ":lua vim.lsp.buf.format_inlay_hints()<CR>", { desc = "Convert inlay hints to text" })
