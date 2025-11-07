@@ -61,7 +61,7 @@ local function open_term(id)
   local buf = vim.fn.bufnr(name)
 
   if buf == -1 then
-    vim.cmd("terminal")
+    vim.cmd("terminal bash")
     buf = vim.api.nvim_get_current_buf()
     vim.api.nvim_buf_set_name(buf, name)
   else
