@@ -19,19 +19,31 @@ vim.keymap.set("n", "<F9>", function()
 end)
 
 local dapui = require("dapui")
-vim.keymap.set('n', '<leader>is', function() dapui.focus("stacks") end, { desc = "DAP UI Focus Stacks" })
-vim.keymap.set('n', '<leader>iv', function() dapui.focus("scopes") end, { desc = "DAP UI Focus Variables (Scopes)" })
-vim.keymap.set('n', '<leader>iw', function() dapui.focus("watches") end, { desc = "DAP UI Focus Watches" })
-vim.keymap.set('n', '<leader>ir', function() dapui.focus("repl") end, { desc = "DAP UI Focus REPL" })
-vim.keymap.set('n', '<leader>ic', function() dapui.focus("console") end, { desc = "DAP UI Focus Console" })
-vim.keymap.set('n', '<leader>ib', function() dapui.focus("breakpoints") end, { desc = "DAP UI Focus Breakpoints" } )
-vim.keymap.set('n', '<leader>iq', dapui.eval, { desc = "DAP UI Quick Eval" } )
+vim.keymap.set("n", "<leader>is", function()
+    dapui.focus("stacks")
+end, { desc = "DAP UI Focus Stacks" })
+vim.keymap.set("n", "<leader>iv", function()
+    dapui.focus("scopes")
+end, { desc = "DAP UI Focus Variables (Scopes)" })
+vim.keymap.set("n", "<leader>iw", function()
+    dapui.focus("watches")
+end, { desc = "DAP UI Focus Watches" })
+vim.keymap.set("n", "<leader>ir", function()
+    dapui.focus("repl")
+end, { desc = "DAP UI Focus REPL" })
+vim.keymap.set("n", "<leader>ic", function()
+    dapui.focus("console")
+end, { desc = "DAP UI Focus Console" })
+vim.keymap.set("n", "<leader>ib", function()
+    dapui.focus("breakpoints")
+end, { desc = "DAP UI Focus Breakpoints" })
+vim.keymap.set("n", "<leader>iq", dapui.eval, { desc = "DAP UI Quick Eval" })
 
 vim.opt.textwidth = 0
 
 vim.keymap.set("n", "<leader>it", ":lua vim.lsp.buf.format_inlay_hints()<CR>", { desc = "Convert inlay hints to text" })
 -- for key, value in pairs(Snacks.dashboard) do if type(value) == "function" then print(key) end end
-vim.keymap.set("n", "<leader>H", ":lua Snacks.dashboard.open()<CR>", {desc = "Open Snacks Dashboard" } )
+vim.keymap.set("n", "<leader>H", ":lua Snacks.dashboard.open()<CR>", { desc = "Open Snacks Dashboard" })
 
 -- Map Ctrl+Z to undo in insert mode
 vim.api.nvim_set_keymap("i", "<C-z>", "<C-o>u", { noremap = true, silent = true })
@@ -43,6 +55,38 @@ vim.api.nvim_set_keymap("i", "<C-Del>", "<C-o>dw", { noremap = true })
 
 vim.keymap.set("i", "<C-BS>", "<C-W>", { noremap = true, desc = "Delete word before cursor" })
 vim.keymap.set("n", "<leader>dv", ":DapVirtualTextToggle<CR>", { desc = "Toggle DAP Virtual Text" })
+
+local function open_term(id)
+  local name = "term://" .. id .. ":Term"
+  local buf = vim.fn.bufnr(name)
+
+  if buf == -1 then
+    vim.cmd("terminal")
+    buf = vim.api.nvim_get_current_buf()
+    vim.api.nvim_buf_set_name(buf, name)
+  else
+    vim.cmd("buffer " .. buf)
+  end
+end
+
+
+-- Terminal prefix group
+-- vim.keymap.set("n", "<leader>t", function() end, { desc = "+Terminal" })
+
+-- list buffers
+vim.keymap.set({ "n", "t" }, "<leader>tl", ":ls!<CR>", { desc = "Show all buffers" })
+
+-- terminal 1–9
+for i = 1, 9 do
+  local id = i
+  vim.keymap.set({ "n", "t" }, "<leader>t" .. id, function()
+    if i >= 5 then
+      LazyVim.terminal({ "bash", "-c", "echo Terminal " .. id .. "; exec bash" }, { id = id, cwd = LazyVim.root() })
+    else
+      open_term(i)
+    end
+  end, { desc = "Terminal #" .. id .. " (Root Dir)" })
+end
 
 local open_at_line = require("custom.open_at_line")
 -- Map the function to a key combination, e.g., <leader>ol
