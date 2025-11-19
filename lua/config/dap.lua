@@ -1,11 +1,12 @@
 local dap = require("dap")
 local dap_python = require("dap-python")
+local debugpy_path = require("util.debugpy_path").get_debugpy()
 require("lazydev").setup({
   library = { "nvim-dap-ui" },
 })
 
 -- Ensure debugpy is set up correctly
-dap_python.setup('python3')
+dap_python.setup(debugpy_path)
 vim.g.autoformat = false
 -- Define Python debug configurations
 dap.configurations.python = {

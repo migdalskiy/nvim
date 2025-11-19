@@ -1,7 +1,7 @@
 -- bootstrap lazy.nvim, LazyVim and your plugins
 require("config.lazy")
 require("config.dap")
-vim.opt.guifont = "FiraCode Nerd Font Mono:h16"
+vim.opt.guifont = "0xProto Nerd Font:h16"  -- downloaded at https://github.com/ryanoasis/nerd-fonts/releases
 vim.opt.clipboard = "unnamed,unnamedplus"
 -- vim.g.lazyvim.config.options.disable_ligatures = "always"
 vim.g.neovide_scroll_animation_length = 0
