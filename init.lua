@@ -13,7 +13,7 @@ vim.api.nvim_create_autocmd("BufRead", {
     group = vim.api.nvim_create_augroup("NoModWhenReadOnly", { clear = true }),
     callback = function()
         vim.opt_local.modifiable = not vim.opt_local.readonly:get()
-        if vim.opt_local.modifiable then
+        if not vim.opt_local.modifiable then
             vim.notify(string.format("File %s is read-only", vim.fn.expand("%")), vim.log.levels.WARN)
         end
     end,
