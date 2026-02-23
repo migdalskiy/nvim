@@ -18,6 +18,10 @@ vim.keymap.set("n", "<F9>", function()
     require("dap").toggle_breakpoint()
 end)
 
+vim.keymap.set("t", "<C-p>", function()
+  vim.api.nvim_paste(vim.fn.getreg('"'), true, -1)
+end, { desc = "Paste yanked text in Insert mode" })
+
 local dapui = require("dapui")
 vim.keymap.set("n", "<leader>is", function()
     dapui.focus("stacks")
