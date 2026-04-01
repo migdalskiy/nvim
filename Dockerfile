@@ -25,7 +25,7 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Make the venv the default Python environment
-ENV PATH="/home/sergiy/.cargo/bin:/home/sergiy/.config/nvim:/opt/venv/bin:$PATH"
+ENV PATH="/home/$USERNAME/.cargo/bin:/home/$USERNAME/.config/nvim:/opt/venv/bin:$PATH"
 
 RUN  curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.6/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 && \
      curl -Lo /tmp/fzf.tar.gz https://github.com/junegunn/fzf/releases/download/v0.70.0/fzf-0.70.0-linux_amd64.tar.gz && tar -C /usr/bin -xzf /tmp/fzf.tar.gz && \
@@ -34,19 +34,30 @@ RUN  curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/downloa
 RUN apt-get update && apt-get install -y iproute2 iptables socat
 
 
+# Define arguments for the user, UID, and GID
+# We will pass these in dynamically during the build
+ARG USERNAME=dev
+ARG USER_UID=1001
+ARG USER_GID=1001
+
+# Create the group and user to match the host
+RUN groupadd --gid $USER_GID $USERNAME && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME
+
+RUN git clone https://github.com/migdalskiy/nvim /home/$USERNAME/.config/nvim
+COPY nvim/ /home/$USERNAME/.config/nvim/
+RUN chown -R $USERNAME:$USER_GID /home/$USERNAME/.config/nvim && ls /home/$USERNAME/.config/
+RUN chmod +x /home/$USERNAME/.config/nvim/*.sh
+USER $USERNAME
+
 # Default working directory
 WORKDIR /workspace
-RUN useradd --uid 1000 --create-home sergiy
-RUN git clone https://github.com/migdalskiy/nvim /home/sergiy/.config/nvim
-COPY nvim/ /home/sergiy/.config/nvim/
-RUN chown -R sergiy:sergiy /home/sergiy/.config/nvim && ls /home/sergiy/.config/ && chmod +x /home/sergiy/.config/nvim/*.sh
-USER sergiy
 
-#install Rust
+
+# install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-ENV NPM_CONFIG_PREFIX=/home/sergiy/.npm-global
-ENV PATH=/home/sergiy/.npm-global/bin:$PATH
+ENV NPM_CONFIG_PREFIX=/home/$USERNAME/.npm-global
+ENV PATH=/home/$USERNAME/.npm-global/bin:$PATH
 RUN npm install -g @openai/codex @google/gemini-cli
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
@@ -61,4 +72,4 @@ RUN nvim --headless "+qa"
 #RUN node -v && npm -v && python --version 
 
 # Default command: just a shell
-ENTRYPOINT ["dumb-init", "/bin/sh", "/home/sergiy/.config/nvim/startup.sh"]
+ENTRYPOINT ["dumb-init", "/bin/sh", "/home/$USERNAME/.config/nvim/startup.sh"]
