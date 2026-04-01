@@ -1,3 +1,4 @@
+# AI Coding Assistant docker image
 # Start from the latest official Node image (Debian-based, full build tools included)
 FROM debian:13-slim
 ENV DEBIAN_FRONTEND=noninteractive
@@ -13,19 +14,21 @@ RUN apt-get update && \
         pkg-config \
         cmake \
         ninja-build \
-        lua5.1 liblua5.1-0-dev \
+        lua5.1 liblua5.1-0-dev luarocks \
         ca-certificates && \
     python3 -m venv /opt/venv && \
     /opt/venv/bin/pip install --upgrade pip setuptools wheel && \
     /opt/venv/bin/pip install flask flask-cors flask-compress debugpy pytest pyright matplotlib plotly && \
     npm install -g pyright typescript-language-server && \
+    luarocks install lpeg && \
+    luarocks install dkjson && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Make the venv the default Python environment
 ENV PATH="/home/sergiy/.cargo/bin:/home/sergiy/.config/nvim:/opt/venv/bin:$PATH"
 
-RUN  curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.4/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 && \
-     curl -Lo /tmp/fzf.tar.gz https://github.com/junegunn/fzf/releases/download/v0.66.0/fzf-0.66.0-linux_amd64.tar.gz && tar -C /usr/bin -xzf /tmp/fzf.tar.gz && \
+RUN  curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.11.6/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 && \
+     curl -Lo /tmp/fzf.tar.gz https://github.com/junegunn/fzf/releases/download/v0.70.0/fzf-0.70.0-linux_amd64.tar.gz && tar -C /usr/bin -xzf /tmp/fzf.tar.gz && \
      rm /tmp/*.tar.gz
 
 RUN apt-get update && apt-get install -y iproute2 iptables socat
@@ -44,7 +47,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 ENV NPM_CONFIG_PREFIX=/home/sergiy/.npm-global
 ENV PATH=/home/sergiy/.npm-global/bin:$PATH
-RUN npm install -g @openai/codex
+RUN npm install -g @openai/codex @google/gemini-cli
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 RUN git config --global user.email "migdalskiy@hotmail.com" && git config --global user.name "Sergiy Migdalskiy"
 
