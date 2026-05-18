@@ -53,6 +53,57 @@ end
 -- Setup which-key mapping
 --wk.setup({})
 
+local function has(cmd)
+  return vim.fn.executable(cmd) == 1
+end
+
+-- Environment flags
+local is_wsl = (vim.fn.has("unix") == 1) and vim.fn.readfile("/proc/version")[1]:lower():match("microsoft")
+local is_ssh = os.getenv("SSH_CLIENT") ~= nil or os.getenv("SSH_TTY") ~= nil
+
+
+local function reset_clipboard_provider()
+  print('Using native clipboard provider')
+  vim.g.clipboard = nil
+end
+
+-- 1. DEFINE STANDARD TERMINAL CLIPBOARD FUNCTION
+-- We wrap this in a reusable function so we can apply it on startup
+local function set_terminal_clipboard()
+  if is_wsl and not is_ssh then
+    print('WSL provider')
+    vim.g.clipboard = {
+      name = 'WslClipboard',
+      copy = {
+        ['+'] = 'powershell.exe -NoProfile -Command "Set-Clipboard -Raw"',
+        ['*'] = 'powershell.exe -NoProfile -Command "Set-Clipboard -Raw"',
+      },
+      paste = {
+        ['+'] = 'powershell.exe -NoProfile -Command "Get-Clipboard"',
+        ['*'] = 'powershell.exe -NoProfile -Command "Get-Clipboard"',
+      },
+      cache_enabled = 0,
+    }
+  elseif is_ssh then
+    print('SSH CONTEXT (Safe OSC 52)')
+    vim.g.clipboard = {
+      name = 'OSC 52-Safe',
+      copy = {
+        ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+        ['*'] = require('vim.ui.clipboard.osc52').copy('+'),
+      },
+      paste = {
+        ['+'] = function() return {} end, -- Blocks hanging
+        ['*'] = function() return {} end,
+      },
+    }
+  elseif has("xclip") or has("xsel") or has("wl-clipboard") then
+    reset_clipboard_provider()
+  end
+end
+
+
+
 return {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -88,5 +139,7 @@ return {
         { "<leader>cn", TurnAutoFormatOff, desc = "No Format-on-write" },
         { "<leader>pp", PrintFullPath, desc = "print the full path of the current file" },
         { "<leader>py", YankFullPath, desc = "yank the full path to the system clipboard" },
+        { "<leader>pc", set_terminal_clipboard, desc = "Autodetect clipboard provider"},
+        { "<leader>pz", reset_clipboard_provider, desc="Reset clipboard provider"}
     },
 }

@@ -101,6 +101,14 @@ vim.api.nvim_set_keymap(
     { noremap = true, silent = true }
 )
 
+-- Make Enter follow local markdown links/files if no LSP is present
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "markdown",
+  callback = function()
+    vim.keymap.set("n", "<CR>", "gf", { buffer = true, desc = "Follow Markdown Link" })
+  end,
+})
+
 -- Yanky recommended mappings:
 --vim.keymap.set({ "n", "x" }, "p", "<Plug>(YankyPutAfter)")
 --vim.keymap.set({ "n", "x" }, "P", "<Plug>(YankyPutBefore)")
