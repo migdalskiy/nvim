@@ -7,6 +7,7 @@ return {
             hide_dotfiles = false,
             hide_gitignored = false,
         }
+        opts.filesystem.bind_to_cwd = true
         opts.window = opts.window or {}
         opts.window.mappings = opts.window.mappings or {}
         opts.window.mappings["J"] = function(state)

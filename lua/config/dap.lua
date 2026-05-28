@@ -26,7 +26,7 @@ dap.configurations.python = {
             "--repoagent=checksum",
             "--cache=local",
             "--cache=redis",
-            "--image=base,trtllm_base:latest",
+            "--image=gpu-base,trtllm_base:latest",
             "--backend=tensorrtllm:r26.03",
             "--backend=pytorch:r26.03",
         },
