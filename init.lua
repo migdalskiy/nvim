@@ -2,10 +2,23 @@
 require("config.lazy")
 require("config.dap")
 vim.opt.guifont = "0xProto Nerd Font:h16"  -- downloaded at https://github.com/ryanoasis/nerd-fonts/releases
-vim.opt.clipboard = "unnamed,unnamedplus"
+
+vim.g.clipboard = {
+  name = 'osc52-copy-only',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = function() return {} end, -- Blocks the hanging terminal read request
+    ['*'] = function() return {} end, -- Blocks the hanging terminal read request
+  },
+}
+
 -- vim.g.lazyvim.config.options.disable_ligatures = "always"
 vim.g.neovide_scroll_animation_length = 0
 vim.g.scrolling_animation_enabled = false
+vim.opt.clipboard = "unnamedplus"
 vim.o.clipboard = "unnamedplus"
 vim.g.autoformat = false
 
@@ -47,3 +60,4 @@ vim.api.nvim_create_autocmd("BufEnter", {
 -- )
 --
 --require("auto-save").setup({})
+vim.o.background = "dark"
