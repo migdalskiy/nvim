@@ -37,8 +37,8 @@ RUN apt-get update && apt-get install -y iproute2 iptables socat
 # Define arguments for the user, UID, and GID
 # We will pass these in dynamically during the build
 ARG USERNAME=dev
-ARG USER_UID=1001
-ARG USER_GID=1001
+ARG USER_UID=1099
+ARG USER_GID=1099
 
 # Create the group and user to match the host
 RUN groupadd --gid $USER_GID $USERNAME && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME
@@ -60,6 +60,8 @@ ENV NPM_CONFIG_PREFIX=/home/$USERNAME/.npm-global
 ENV PATH=/home/$USERNAME/.npm-global/bin:$PATH
 RUN npm install -g @openai/codex @google/gemini-cli
 RUN curl -fsSL https://claude.ai/install.sh | bash
+#RUN curl -fsSL https://pi.dev/install.sh | bash
+RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
 
 RUN git config --global user.email "migdalskiy@hotmail.com" && git config --global user.name "Sergiy Migdalskiy"
 
@@ -72,4 +74,4 @@ RUN nvim --headless "+qa"
 #RUN node -v && npm -v && python --version 
 
 # Default command: just a shell
-ENTRYPOINT ["dumb-init", "/bin/sh", "/home/$USERNAME/.config/nvim/startup.sh"]
+#ENTRYPOINT ["dumb-init", "/bin/sh", "/home/$USERNAME/.config/nvim/startup.sh"]
