@@ -82,7 +82,7 @@ ENV PATH="$HOME/.cargo/bin:$HOME/.config/nvim:/opt/venv/bin:$HOME/.npm-global/bi
 RUN npm install -g @openai/codex @google/gemini-cli
 RUN curl -fsSL https://claude.ai/install.sh | bash
 #RUN curl -fsSL https://pi.dev/install.sh | bash
-RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent
+RUN npm install -g --ignore-scripts @earendil-works/pi-coding-agent && pi install npm:pi-provider-litellm
 
 RUN git config --global user.email "migdalskiy@hotmail.com" && git config --global user.name "Sergiy Migdalskiy"
 
