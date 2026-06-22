@@ -23,6 +23,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         lua5.1 liblua5.1-0-dev luarocks \
         xclip wl-clipboard \
         iproute2 iptables socat \
+        tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
     && apt-get install -y nodejs \
     && apt-mark hold nodejs \
@@ -62,7 +63,8 @@ RUN --mount=type=cache,target=${USER_HOME}/.cache/pip,uid=${USER_UID},gid=${USER
       debugpy pytest pyright \
       matplotlib plotly \
       torch torchvision torchaudio \
-      docling marker-pdf markitdown 
+      docling marker-pdf markitdown easyocr rapidocr_onnxruntime onnxruntime-gpu tesserocr
+
 
 ENV NPM_CONFIG_PREFIX=${USER_HOME}/.npm-global
 
