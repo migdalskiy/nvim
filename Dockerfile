@@ -13,10 +13,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl gnupg ca-certificates tini \
+        curl gnupg ca-certificates tini htop \
         python3 python3-pip python3-venv \
         fd-find cron rsync screen ripgrep unzip git wget dumb-init \
-        build-essential \
+        build-essential linux-perf \
         pkg-config \
         cmake \
         ninja-build \
