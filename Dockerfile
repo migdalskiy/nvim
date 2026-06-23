@@ -1,12 +1,15 @@
 # AI Coding Assistant docker image
 # Start from the latest official Node image (Debian-based, full build tools included)
-FROM debian:13-slim
+FROM ubuntu:22.04 AS base
+#FROM debian:13-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 
-# 1. Enable apt caching by overriding Debian's default docker-clean behavior
-RUN rm -f /etc/apt/apt.conf.d/docker-clean && \
-    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+# Doing this makes it so we won't be asked questions about where we are during later package installation.
+RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone \
+ # 1. Enable apt caching by overriding Debian's default docker-clean behavior \
+ && rm -f /etc/apt/apt.conf.d/docker-clean \
+ && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
 
 # 2. Mount APT caches to speed up OS package downloads
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -16,7 +19,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         curl gnupg ca-certificates tini htop \
         python3 python3-pip python3-venv \
         fd-find cron rsync screen ripgrep unzip git wget dumb-init \
-        build-essential linux-perf \
+        build-essential linux-tools-common linux-tools-generic \
         pkg-config \
         cmake \
         ninja-build \
