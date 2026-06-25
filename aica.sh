@@ -2,7 +2,8 @@
 #podman build  -t aica:latest .
 
 podman run \
-  -p 3000:3000 -p 5002:5002 \
+  -p 0.0.0.0:3000:3000 -p 5002:5002 \
+  --memory="52g" --memory-swap="52g" \
   --name aica \
   -v ~/L:/workspace:Z \
   -v ~/.debug:/home/dev/.debug:Z \

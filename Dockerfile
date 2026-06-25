@@ -1,6 +1,6 @@
 # AI Coding Assistant docker image
 # Start from the latest official Node image (Debian-based, full build tools included)
-FROM ubuntu:22.04 AS base
+FROM ubuntu:24.04 AS base
 #FROM debian:13-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,11 +21,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         fd-find cron rsync screen ripgrep unzip git wget dumb-init \
         build-essential linux-tools-common linux-tools-generic \
         pkg-config \
-        cmake \
+        cmake tig \
         ninja-build \
         lua5.1 liblua5.1-0-dev luarocks \
         xclip wl-clipboard \
-        iproute2 iptables socat \
+        iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
     && apt-get install -y nodejs \
@@ -34,7 +34,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && luarocks install dkjson \
     && curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 \
     && curl -Lo /tmp/fzf.tar.gz https://github.com/junegunn/fzf/releases/download/v0.73.1/fzf-0.73.1-linux_amd64.tar.gz && tar -C /usr/bin -xzf /tmp/fzf.tar.gz \
-    && rm /tmp/*.tar.gz
+    && curl -L https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel \
+    && chmod +x /usr/local/bin/bazel && rm /tmp/*.tar.gz
 
 # Define arguments for the user, UID, and GID
 # We will pass these in dynamically during the build
@@ -75,7 +76,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
     git config --global user.email "migdalskiy@hotmail.com" \
  && git config --global user.name "Sergiy Migdalskiy" \
  && git clone https://github.com/migdalskiy/nvim ${USER_HOME}/.config/nvim \
- && npm install pyright typescript-language-server \
+ && npm install pyright typescript-language-server @iconify-json/lucide \
  && npm install --ignore-scripts @earendil-works/pi-coding-agent \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
  && npm install @openai/codex @google/gemini-cli \
