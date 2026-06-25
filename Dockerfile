@@ -16,7 +16,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl gnupg ca-certificates tini htop \
+        curl gnupg ca-certificates tini htop patch ssh \
         python3 python3-pip python3-venv \
         fd-find cron rsync screen ripgrep unzip git wget dumb-init \
         build-essential linux-tools-common linux-tools-generic \
@@ -81,7 +81,11 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
  && npm install @openai/codex @google/gemini-cli \
  && curl -fsSL https://claude.ai/install.sh | bash \
- && npm install --ignore-scripts @earendil-works/pi-coding-agent 
+ && npm install --ignore-scripts @earendil-works/pi-coding-agent \
+ && cargo install cargo-binstall --locked \
+ && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli
+
+# && cargo install --locked tree-sitter-cli
 # && pi install npm:pi-provider-litellm
 
 #or: && curl -fsSL https://pi.dev/install.sh | bash
