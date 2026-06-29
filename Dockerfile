@@ -4,7 +4,6 @@ FROM ubuntu:24.04 AS base
 #FROM debian:13-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 # Doing this makes it so we won't be asked questions about where we are during later package installation.
 RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone \
  # 1. Enable apt caching by overriding Debian's default docker-clean behavior \
@@ -14,11 +13,11 @@ RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONT
 # 2. Mount APT caches to speed up OS package downloads
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    apt-get update \
+       apt-get update \
     && apt-get install -y --no-install-recommends \
         curl gnupg ca-certificates tini htop patch ssh \
         python3 python3-pip python3-venv \
-        fd-find cron rsync screen ripgrep unzip git wget dumb-init \
+        fd-find cron rsync screen ripgrep unzip git dumb-init wget \
         build-essential linux-tools-common linux-tools-generic \
         pkg-config \
         cmake tig \
@@ -27,8 +26,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         xclip wl-clipboard \
         iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
+    && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
-    && apt-get install -y nodejs \
+    && apt-get update \
+    && apt-get install -y nodejs dxc vulkan-tools libvulkan-dev vulkan-validationlayers vulkan-utility-libraries-dev \
     && apt-mark hold nodejs \
     && luarocks install lpeg \
     && luarocks install dkjson \
@@ -47,6 +49,21 @@ ARG USER_HOME=/home/${USERNAME}
 # Create the group and user to match the host
 RUN groupadd --gid $USER_GID $USERNAME && \
     useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME
+
+ENV VULKAN_CACHE_DIR=/root/.cache/vulkan
+
+RUN --mount=type=cache,target=/root/.cache/vulkan \
+    mkdir -p ${VULKAN_CACHE_DIR} && \
+    if [ ! -f "${VULKAN_CACHE_DIR}/vulkansdk.tar.xz" ]; then \
+        curl -L https://sdk.lunarg.com/sdk/download/1.4.350.1/linux/vulkansdk-linux-x86_64-1.4.350.1.tar.xz \
+        -o ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz; \
+    fi && \
+    mkdir -p /opt/vulkan && \
+    tar -xf ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz -C /opt/vulkan --strip-components=1
+
+ENV VULKAN_SDK=/opt/vulkan/x86_64
+ENV PATH="$VULKAN_SDK/bin:$PATH"
+ENV LD_LIBRARY_PATH="$VULKAN_SDK/lib:$LD_LIBRARY_PATH"
 
 USER $USERNAME
 
@@ -84,6 +101,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
  && npm install --ignore-scripts @earendil-works/pi-coding-agent \
  && cargo install cargo-binstall --locked \
  && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli
+
 
 # && cargo install --locked tree-sitter-cli
 # && pi install npm:pi-provider-litellm
