@@ -15,10 +15,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
        apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl gnupg ca-certificates tini htop patch ssh \
+        curl wget gnupg ca-certificates tini htop tmux patch ssh net-tools \
         python3 python3-pip python3-venv \
-        fd-find cron rsync screen ripgrep unzip git dumb-init wget \
-        build-essential linux-tools-common linux-tools-generic \
+        fd-find cron rsync screen ripgrep unzip git dumb-init \
+        build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
         pkg-config \
         cmake tig \
         ninja-build \
@@ -29,9 +29,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
-    && apt-get update \
-    && apt-get install -y nodejs dxc vulkan-tools libvulkan-dev vulkan-validationlayers vulkan-utility-libraries-dev \
-    && apt-mark hold nodejs \
+    && ln -s /usr/bin/llvm-mca-19 /usr/bin/llvm-mca \
+    && apt-get update && apt-get install -y --no-install-recommends nodejs dxc vulkan-tools libvulkan-dev vulkan-validationlayers vulkan-utility-libraries-dev && apt-mark hold nodejs \
     && luarocks install lpeg \
     && luarocks install dkjson \
     && curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 \
