@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
        apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl wget gnupg ca-certificates tini htop tmux patch ssh net-tools \
+        curl wget gnupg ca-certificates tini htop tmux patch ssh net-tools zstd \
         python3 python3-pip python3-venv \
         fd-find cron rsync screen ripgrep unzip git dumb-init \
         build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
@@ -26,6 +26,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         xclip wl-clipboard \
         iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
+        libdebuginfod-dev \
     && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
