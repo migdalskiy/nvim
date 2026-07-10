@@ -39,6 +39,19 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && curl -L https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel && rm /tmp/*.tar.gz
 
+
+FROM base AS builder
+RUN apt-get update && apt-get install -y --no-install-recommends libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev
+RUN mkdir /app
+WORKDIR /app
+RUN git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+RUN cd linux/tools/perf && make NO_JVMTI=1 NO_LIBPERL=1 NO_LIBPYTHON=1 NO_JEVENTS=1
+
+FROM base
+COPY --from=builder /app/linux/tools/perf /usr/local/perf
+
+
+
 # Define arguments for the user, UID, and GID
 # We will pass these in dynamically during the build
 ARG USERNAME=dev
