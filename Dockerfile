@@ -14,10 +14,17 @@ RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONT
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
        apt-get update \
+    && apt-get install -y curl ca-certificates gnupg \
+    && install -d /usr/share/postgresql-common/pgdg \
+    && curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+    && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
         curl wget gnupg ca-certificates tini htop tmux patch ssh net-tools zstd \
+        postgresql libpq-dev \
         python3 python3-pip python3-venv \
-        fd-find cron rsync screen ripgrep unzip git dumb-init \
+        fd-find cron rsync screen ripgrep unzip git dumb-init gdb systemd-coredump lldb \
+        postgresql-client-18 \
         build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
         pkg-config \
         cmake tig \
@@ -26,7 +33,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         xclip wl-clipboard \
         iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
-        libdebuginfod-dev \
+        libdebuginfod-dev libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev \
     && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
@@ -39,16 +46,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && curl -L https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel \
     && chmod +x /usr/local/bin/bazel && rm /tmp/*.tar.gz
 
+#FROM base AS builder
+#RUN apt-get update && apt-get install -y --no-install-recommends libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev
+#RUN mkdir /app
+#WORKDIR /app
+#RUN git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+#RUN cd linux/tools/perf && make NO_JVMTI=1 NO_LIBPERL=1 NO_LIBPYTHON=1 NO_JEVENTS=1
 
-FROM base AS builder
-RUN apt-get update && apt-get install -y --no-install-recommends libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev
-RUN mkdir /app
-WORKDIR /app
-RUN git clone --depth 1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-RUN cd linux/tools/perf && make NO_JVMTI=1 NO_LIBPERL=1 NO_LIBPYTHON=1 NO_JEVENTS=1
-
-FROM base
-COPY --from=builder /app/linux/tools/perf /usr/local/perf
+#FROM base
+#COPY --from=builder /app/linux/tools/perf /usr/local/perf
 
 
 
@@ -58,25 +64,26 @@ ARG USERNAME=dev
 ARG USER_UID=1099
 ARG USER_GID=1099
 ARG USER_HOME=/home/${USERNAME}
-
-# Create the group and user to match the host
-RUN groupadd --gid $USER_GID $USERNAME && \
-    useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME
-
 ENV VULKAN_CACHE_DIR=/root/.cache/vulkan
-
-RUN --mount=type=cache,target=/root/.cache/vulkan \
-    mkdir -p ${VULKAN_CACHE_DIR} && \
-    if [ ! -f "${VULKAN_CACHE_DIR}/vulkansdk.tar.xz" ]; then \
-        curl -L https://sdk.lunarg.com/sdk/download/1.4.350.1/linux/vulkansdk-linux-x86_64-1.4.350.1.tar.xz \
-        -o ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz; \
-    fi && \
-    mkdir -p /opt/vulkan && \
-    tar -xf ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz -C /opt/vulkan --strip-components=1
-
 ENV VULKAN_SDK=/opt/vulkan/x86_64
 ENV PATH="$VULKAN_SDK/bin:$PATH"
 ENV LD_LIBRARY_PATH="$VULKAN_SDK/lib:$LD_LIBRARY_PATH"
+
+# Create the group and user to match the host
+RUN --mount=type=cache,target=/root/.cache/vulkan \
+    mv /usr/bin/perf /usr/bin/perf.bak \
+ && ln -s /usr/lib/linux-tools/*/perf /usr/bin/perf \
+ && groupadd --gid $USER_GID $USERNAME \
+ && useradd --uid $USER_UID --gid $USER_GID -m -s /bin/bash $USERNAME \
+ && ln -s ${USER_HOME}/venv /venv && ln -s ${USER_HOME}/venv /opt/venv \
+ && mkdir -p ${VULKAN_CACHE_DIR} \
+ && if [ ! -f "${VULKAN_CACHE_DIR}/vulkansdk.tar.xz" ]; then \
+        curl -L https://sdk.lunarg.com/sdk/download/1.4.350.1/linux/vulkansdk-linux-x86_64-1.4.350.1.tar.xz \
+        -o ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz; \
+    fi \
+ && mkdir -p /opt/vulkan \
+ && tar -xf ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz -C /opt/vulkan --strip-components=1
+
 
 USER $USERNAME
 
@@ -93,9 +100,10 @@ ENV PATH="${USER_HOME}/.cargo/bin:${USER_HOME}/.config/nvim:${USER_HOME}/.npm-gl
 RUN --mount=type=cache,target=${USER_HOME}/.cache/pip,uid=${USER_UID},gid=${USER_GID},sharing=locked \
     python3 -m venv ${USER_HOME}/venv \
  && ${USER_HOME}/venv/bin/pip install --upgrade \
-      flask flask-cors flask-compress \
+      flask flask-cors flask-compress requests \
+      fastapi uvicorn python-multipart duckdb \
       debugpy pytest pyright \
-      matplotlib plotly \
+      matplotlib plotly sqlit-tui \
       torch torchvision torchaudio \
       docling marker-pdf markitdown easyocr rapidocr_onnxruntime onnxruntime-gpu tesserocr
 
@@ -105,25 +113,22 @@ ENV NPM_CONFIG_PREFIX=${USER_HOME}/.npm-global
 RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},sharing=locked \
     git config --global user.email "migdalskiy@hotmail.com" \
  && git config --global user.name "Sergiy Migdalskiy" \
+ && git config --global core.editor "nvim" \
  && git clone https://github.com/migdalskiy/nvim ${USER_HOME}/.config/nvim \
- && npm install pyright typescript-language-server @iconify-json/lucide \
- && npm install --ignore-scripts @earendil-works/pi-coding-agent \
+ && npm install -g pyright typescript-language-server \
+ && npm install -g --ignore-scripts @earendil-works/pi-coding-agent \
+ && curl -LsSf https://astral.sh/uv/install.sh | sh \
+ && pi install npm:pi-provider-litellm \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
- && npm install @openai/codex @google/gemini-cli \
+ && npm install -g @openai/codex @google/gemini-cli \
  && curl -fsSL https://claude.ai/install.sh | bash \
- && npm install --ignore-scripts @earendil-works/pi-coding-agent \
  && cargo install cargo-binstall --locked \
- && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli
-
-
-# && cargo install --locked tree-sitter-cli
-# && pi install npm:pi-provider-litellm
+ && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli \
+ && curl -fsSL https://bun.com/install | bash \
+ && /usr/bin/nvim --headless "+Lazy! sync" +qa && nvim --headless "+qa" \
+ && /usr/bin/nvim -c "autocmd User VeryLazy ++once Lazy sync" +qa
 
 #or: && curl -fsSL https://pi.dev/install.sh | bash
-
-
-#RUN  /usr/bin/nvim --headless "+Lazy! sync" +qa && nvim --headless "+qa" && \
-#     /usr/bin/nvim -c "autocmd User VeryLazy ++once Lazy sync" +qa
 
 # Show versions (useful sanity check)
 #RUN node -v && npm -v && python --version 
