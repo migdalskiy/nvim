@@ -20,10 +20,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl wget gnupg ca-certificates tini htop tmux patch ssh net-tools zstd \
+        curl wget gnupg ca-certificates tini htop patch ssh net-tools zstd libevent-dev libncurses-dev bison xxd autoconf automake libtool pkg-config \
         postgresql libpq-dev \
-        python3 python3-pip python3-venv \
-        fd-find cron rsync screen ripgrep unzip git dumb-init gdb systemd-coredump lldb \
+        python3 python3-dev python3-pip python3-venv \
+        fd-find cron rsync screen ripgrep unzip git dumb-init gdb systemd-coredump lldb strace google-perftools libgoogle-perftools-dev \
         postgresql-client-18 \
         build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
         pkg-config \
@@ -44,7 +44,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && curl -Lo /tmp/nvim.tar.gz https://github.com/neovim/neovim/releases/download/v0.12.3/nvim-linux-x86_64.tar.gz && tar -C /usr -xzf /tmp/nvim.tar.gz --strip-components=1 \
     && curl -Lo /tmp/fzf.tar.gz https://github.com/junegunn/fzf/releases/download/v0.73.1/fzf-0.73.1-linux_amd64.tar.gz && tar -C /usr/bin -xzf /tmp/fzf.tar.gz \
     && curl -L https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel \
-    && chmod +x /usr/local/bin/bazel && rm /tmp/*.tar.gz
+    && chmod +x /usr/local/bin/bazel && rm /tmp/*.tar.gz \
+    && git clone --branch 3.7b --depth=1 https://github.com/tmux/tmux.git /tmp/tmux && cd /tmp/tmux && ./autogen.sh && ./configure && make -j 16 && make install
 
 #FROM base AS builder
 #RUN apt-get update && apt-get install -y --no-install-recommends libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev
@@ -102,8 +103,8 @@ RUN --mount=type=cache,target=${USER_HOME}/.cache/pip,uid=${USER_UID},gid=${USER
  && ${USER_HOME}/venv/bin/pip install --upgrade \
       flask flask-cors flask-compress requests \
       fastapi uvicorn python-multipart duckdb \
-      debugpy pytest pyright \
-      matplotlib plotly sqlit-tui \
+      debugpy pytest pyright psycopg2 \
+      matplotlib plotly sqlit-tui inject clickhouse-connect pipx \
       torch torchvision torchaudio \
       docling marker-pdf markitdown easyocr rapidocr_onnxruntime onnxruntime-gpu tesserocr
 
@@ -115,6 +116,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
  && git config --global user.name "Sergiy Migdalskiy" \
  && git config --global core.editor "nvim" \
  && git clone https://github.com/migdalskiy/nvim ${USER_HOME}/.config/nvim \
+ && curl -LsSf https://astral.sh/uv/install.sh | sh \
  && npm install -g pyright typescript-language-server \
  && npm install -g --ignore-scripts @earendil-works/pi-coding-agent \
  && curl -LsSf https://astral.sh/uv/install.sh | sh \

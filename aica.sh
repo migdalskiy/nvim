@@ -8,15 +8,14 @@ podman run \
   -v ~/L:/workspace:z \
   -v ~/.debug:/home/dev/.debug:z \
   -v ~/.config/opencode:/home/dev/.config/opencode:z \
-  -v /var/mnt/data:/var/mnt/data:z \
-  -v nvim_data:/root/.local/share/nvim:z \
-  -v nvim_state:/root/.local/state/nvim:z \
-  -v nvim_cache:/root/.cache/nvim:z \
-  -v claude_local:/home/dev/.claude:z \
+  -v /var/mnt/data/shared:/var/mnt/data/shared:z \
+  -v /var/mnt/data/tmp:/var/mnt/data/tmp:z \
   --userns=keep-id:uid=1099,gid=1099 \
   --group-add keep-groups \
   --device nvidia.com/gpu=all \
-  --cap-add=PERFMON --cap-add=SYS_PTRACE \
-  --security-opt seccomp=unconfined \
   --security-opt label=type:nvidia_container_t \
   --init -d -it aica sleep infinity
+
+
+
+# --cap-add=PERFMON --cap-add=SYS_PTRACE --security-opt seccomp=unconfined
