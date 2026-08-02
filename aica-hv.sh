@@ -9,9 +9,6 @@ podman run \
   -v ~/L:/workspace:z \
   -v ~/.debug:/home/dev/.debug:z \
   -v ~/.config/opencode:/home/dev/.config/opencode:z \
-  -v /var/mnt/data/shared:/var/mnt/data/shared:z \
-  -v /var/mnt/data/1hr:var/mnt/data/1hr:z \
-  -v /var/mnt/data/tmp:/var/mnt/data/tmp:z \
   --userns=keep-id:uid=1099,gid=1099 \
   --group-add keep-groups \
   --device nvidia.com/gpu=all \
