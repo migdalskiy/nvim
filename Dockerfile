@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         curl wget gnupg ca-certificates tini htop patch ssh net-tools zstd libevent-dev libncurses-dev bison xxd autoconf automake libtool pkg-config \
         postgresql libpq-dev \
         python3 python3-dev python3-pip python3-venv \
-        fd-find cron rsync screen ripgrep unzip git dumb-init gdb systemd-coredump lldb strace google-perftools libgoogle-perftools-dev \
+        fd-find cron rsync screen ripgrep unzip git dumb-init gdb systemd-coredump lldb strace google-perftools libgoogle-perftools-dev debuginfod \
         postgresql-client-18 \
         build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
         pkg-config \
@@ -34,6 +34,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
         libdebuginfod-dev libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev \
+        bubblewrap \
     && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
