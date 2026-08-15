@@ -27,14 +27,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         postgresql-client-18 \
         build-essential linux-tools-common linux-tools-generic lsb-release software-properties-common llvm-19 \
         pkg-config \
-        cmake tig \
+        cmake tig jq \
         ninja-build \
         lua5.1 liblua5.1-0-dev luarocks \
         xclip wl-clipboard \
         iproute2 iptables socat less \
         tesseract-ocr tesseract-ocr-eng libtesseract-dev libleptonica-dev pkg-config \
         libdebuginfod-dev libelf-dev libdw-dev bison flex libtraceevent-dev libaudit-dev \
-        bubblewrap \
+        bubblewrap iputils-ping dnsutils net-tools traceroute mtr-tiny tcpdump nmap netcat-openbsd iftop iperf3 ethtool \
     && curl -fsSL https://packages.lunarg.com/lunarg-signing-key-pub.asc | gpg --dearmor -o /usr/share/keyrings/lunarg-archive-keyring.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/lunarg-archive-keyring.gpg] https://packages.lunarg.com/vulkan noble main" | tee /etc/apt/sources.list.d/lunarg-vulkan-noble.list \
     && curl -fsSL https://deb.nodesource.com/setup_26.x | bash - \
@@ -68,8 +68,8 @@ ARG USER_GID=1099
 ARG USER_HOME=/home/${USERNAME}
 ENV VULKAN_CACHE_DIR=/root/.cache/vulkan
 ENV VULKAN_SDK=/opt/vulkan/x86_64
-ENV PATH="$VULKAN_SDK/bin:$PATH"
-ENV LD_LIBRARY_PATH="$VULKAN_SDK/lib:$LD_LIBRARY_PATH"
+ENV PATH="${VULKAN_SDK}/bin:$PATH"
+ENV LD_LIBRARY_PATH="${VULKAN_SDK}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Create the group and user to match the host
 RUN --mount=type=cache,target=/root/.cache/vulkan \
@@ -89,9 +89,6 @@ RUN --mount=type=cache,target=/root/.cache/vulkan \
 
 USER $USERNAME
 
-# Default working directory
-WORKDIR /workspace
-
 # Make the venv the default Python environment
 ENV PATH="${USER_HOME}/.cargo/bin:${USER_HOME}/.config/nvim:${USER_HOME}/.npm-global/bin:${USER_HOME}/.local/bin:${USER_HOME}/venv/bin:$PATH"
 
@@ -106,7 +103,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.cache/pip,uid=${USER_UID},gid=${USER
       fastapi uvicorn python-multipart duckdb \
       debugpy pytest pyright psycopg2 \
       matplotlib plotly sqlit-tui inject clickhouse-connect pipx \
-      torch torchvision torchaudio \
+      torch torchvision torchaudio maturin \
       docling marker-pdf markitdown easyocr rapidocr_onnxruntime onnxruntime-gpu tesserocr
 
 
@@ -139,5 +136,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
 # Default command: just a shell
 #ENTRYPOINT dumb-init /bin/sh ${USER_HOME}/.config/nvim/startup.sh
 #
+
+WORKDIR /app
 ENTRYPOINT ["tini", "--"]
 CMD ["sleep", "infinity"]
