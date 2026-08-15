@@ -118,6 +118,7 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
  && npm install -g pyright typescript-language-server \
  && npm install -g --ignore-scripts @earendil-works/pi-coding-agent \
  && curl -LsSf https://astral.sh/uv/install.sh | sh \
+ && echo source ~/venv/bin/activate >> ~/.bashrc \
  && pi install npm:pi-provider-litellm \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
  && npm install -g @openai/codex @google/gemini-cli \
