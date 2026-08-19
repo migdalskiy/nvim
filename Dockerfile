@@ -84,13 +84,16 @@ RUN --mount=type=cache,target=/root/.cache/vulkan \
         -o ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz; \
     fi \
  && mkdir -p /opt/vulkan \
- && tar -xf ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz -C /opt/vulkan --strip-components=1
-
+ && tar -xf ${VULKAN_CACHE_DIR}/vulkansdk.tar.xz -C /opt/vulkan --strip-components=1 \
+ && apt install -y build-essential pkg-config curl bzip2 zlib1g-dev libbz2-dev liblzma-dev libzstd-dev libcurl4-openssl-dev \
+ && cd /tmp && curl -fLO https://sourceware.org/ftp/elfutils/0.195/elfutils-0.195.tar.bz2 && tar -xf elfutils-0.195.tar.bz2 \
+ && cd elfutils-0.195 && ./configure --prefix=/opt/elfutils-0.195 && make -j"$(nproc)" && make install
 
 USER $USERNAME
 
 # Make the venv the default Python environment
 ENV PATH="${USER_HOME}/.cargo/bin:${USER_HOME}/.config/nvim:${USER_HOME}/.npm-global/bin:${USER_HOME}/.local/bin:${USER_HOME}/venv/bin:$PATH"
+ENV LD_LIBRARY_PATH="/opt/elfutils-0.195/lib:$LD_LIBRARY_PATH"
 
 # 3. Create the Python venv
 # 4. Mount PIP cache to speed up Python dependencies
@@ -102,15 +105,15 @@ RUN --mount=type=cache,target=${USER_HOME}/.cache/pip,uid=${USER_UID},gid=${USER
       flask flask-cors flask-compress requests \
       fastapi uvicorn python-multipart duckdb \
       debugpy pytest pyright psycopg2 \
-      matplotlib plotly sqlit-tui inject clickhouse-connect pipx \
+      matplotlib plotly sqlit-tui inject clickhouse-connect pipx pytest-asyncio\
       torch torchvision torchaudio maturin \
       docling marker-pdf markitdown easyocr rapidocr_onnxruntime onnxruntime-gpu tesserocr
 
 
 ENV NPM_CONFIG_PREFIX=${USER_HOME}/.npm-global
 
-RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},sharing=locked \
-    git config --global user.email "migdalskiy@hotmail.com" \
+#RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},sharing=locked \
+RUN    git config --global user.email "migdalskiy@hotmail.com" \
  && git config --global user.name "Sergiy Migdalskiy" \
  && git config --global core.editor "nvim" \
  && git clone https://github.com/migdalskiy/nvim ${USER_HOME}/.config/nvim \
@@ -122,12 +125,13 @@ RUN --mount=type=cache,target=${USER_HOME}/.npm,uid=${USER_UID},gid=${USER_GID},
  && pi install npm:pi-provider-litellm \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
  && npm install -g @openai/codex @google/gemini-cli \
- && curl -fsSL https://claude.ai/install.sh | bash \
+# && curl -fsSL https://claude.ai/install.sh | bash \
  && cargo install cargo-binstall --locked \
  && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli \
  && curl -fsSL https://bun.com/install | bash \
  && /usr/bin/nvim --headless "+Lazy! sync" +qa && nvim --headless "+qa" \
- && /usr/bin/nvim -c "autocmd User VeryLazy ++once Lazy sync" +qa
+ && /usr/bin/nvim -c "autocmd User VeryLazy ++once Lazy sync" +qa \
+ && printf 'set -g default-terminal "screen-256color"\nset-environment -g LANG "C.utf8"\nset-environment -g LC_ALL "C.utf8"\n' > "${USER_HOME}/.tmux.conf"
 
 #or: && curl -fsSL https://pi.dev/install.sh | bash
 

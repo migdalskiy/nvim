@@ -2,16 +2,14 @@
 #podman build  -t aica:latest .
 
 podman run \
-  -p 0.0.0.0:3000:3000 -p 0.0.0.0:3001:3001 -p 0.0.0.0:8301:8301 -p 0.0.0.0:8300:8300 -p 0.0.0.0:5002:5002 \
+  -p 0.0.0.0:3020:3000 -p 0.0.0.0:3021:3001 -p 0.0.0.0:8321:8301 -p 0.0.0.0:8320:8300 -p 0.0.0.0:5022:5002 \
   --memory="56g" --memory-swap="56g" \
-  --name aica --hostname aica \
-  --name aica \
-  -v /var/home/dev/L:/workspace:z \
-  -v /var/mnt/data/debug:/home/dev/.debug:z \
-  -v /var/home/dev/.config/opencode:/home/dev/.config/opencode:z \
+  --name aica2 \
+  -v /var/home/dev/L2:/workspace:z \
+  -v /var/home/dev/.debug:/home/dev/.debug:z \
   -v /var/mnt/data/shared:/var/mnt/data/shared:z \
   -v /var/mnt/data/1hr:/var/mnt/data/1hr:z \
-  -v /var/mnt/data/big:/var/mnt/data/big:z \
+  -v /var/mnt/data/tmp:/var/mnt/data/tmp:z \
   --userns=keep-id:uid=1099,gid=1099 \
   --group-add keep-groups \
   --device nvidia.com/gpu=all \
