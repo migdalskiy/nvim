@@ -125,13 +125,17 @@ RUN    git config --global user.email "migdalskiy@hotmail.com" \
  && pi install npm:pi-provider-litellm \
  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
  && npm install -g @openai/codex @google/gemini-cli \
-# && curl -fsSL https://claude.ai/install.sh | bash \
+ && curl -fsSL https://claude.ai/install.sh | bash \
  && cargo install cargo-binstall --locked \
  && cargo binstall --no-confirm --locked --disable-telemetry tree-sitter-cli \
  && curl -fsSL https://bun.com/install | bash \
  && /usr/bin/nvim --headless "+Lazy! sync" +qa && nvim --headless "+qa" \
  && /usr/bin/nvim -c "autocmd User VeryLazy ++once Lazy sync" +qa \
  && printf 'set -g default-terminal "screen-256color"\nset-environment -g LANG "C.utf8"\nset-environment -g LC_ALL "C.utf8"\n' > "${USER_HOME}/.tmux.conf"
+
+
+ENV LANG=C.utf8
+ENV LC_ALL=C.utf8
 
 #or: && curl -fsSL https://pi.dev/install.sh | bash
 

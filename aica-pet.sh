@@ -2,8 +2,9 @@
 #podman build  -t aica:latest .
 
 podman run \
-  -p 0.0.0.0:3000:3000 -p 0.0.0.0:3001:3001 -p 0.0.0.0:8301:8301 -p 0.0.0.0:8300:8300 -p 0.0.0.0:8031:8031 -p 0.0.0.0:5002:5002 \
+  -p 0.0.0.0:3000:3000 -p 0.0.0.0:3001:3001 -p 0.0.0.0:8301:8301 -p 0.0.0.0:8300:8300 -p 0.0.0.0:5002:5002 \
   --name aica --hostname aica-pet \
+  --network valuer \
   -v ~/.debug:/home/dev/.debug:z \
   -v ~/pet:/app:z \
   -v nvim_data:/home/dev/.local/share/nvim:z \
