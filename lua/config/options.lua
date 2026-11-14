@@ -7,3 +7,8 @@ vim.opt.fileformat = "unix"
 -- Tell Neovim to seamlessly use the system clipboard for 'y', 'd', 'p'
 --vim.opt.clipboard = "unnamedplus"
 
+vim.opt.list = true
+vim.opt.listchars:append({
+  eol = "↲",
+  trail = "·",
+})
